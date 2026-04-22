@@ -1,0 +1,65 @@
+[
+  {
+    "id": "neo-fallback-1",
+    "neoRefId": "fallback-1",
+    "name": "Demo NEO Alpha",
+    "type": "近地小天体",
+    "location": "绕 Earth 轨道",
+    "year": "2026",
+    "diameter": "120.0 m（估算）",
+    "speed": "11.50 km/s",
+    "nearest": "2026-03-15 08:00 UTC",
+    "risk": "常规",
+    "description": "接口异常时使用的演示对象，用于保证三维可视化与业务流程可用。",
+    "image": "",
+    "source": "https://api.nasa.gov/",
+    "metrics": {
+      "missKm": 18500000,
+      "speedKps": 11.5,
+      "hazardous": false,
+      "diameterM": 120
+    }
+  },
+  {
+    "id": "neo-fallback-2",
+    "neoRefId": "fallback-2",
+    "name": "Demo NEO Beta",
+    "type": "近地小天体",
+    "location": "绕 Earth 轨道",
+    "year": "2026",
+    "diameter": "45.0 m（估算）",
+    "speed": "18.10 km/s",
+    "nearest": "2026-03-15 14:10 UTC",
+    "risk": "高关注",
+    "description": "演示高关注目标，用于测试提醒阈值与风险标签显示。",
+    "image": "",
+    "source": "https://api.nasa.gov/",
+    "metrics": {
+      "missKm": 4200000,
+      "speedKps": 18.1,
+      "hazardous": true,
+      "diameterM": 45
+    }
+  },
+  {
+    "id": "neo-fallback-3",
+    "neoRefId": "fallback-3",
+    "name": "Demo NEO Gamma",
+    "type": "近地小天体",
+    "location": "绕 Earth 轨道",
+    "year": "2026",
+    "diameter": "260.0 m（估算）",
+    "speed": "9.30 km/s",
+    "nearest": "2026-03-16 02:40 UTC",
+    "risk": "常规",
+    "description": "演示大尺寸目标，用于对比看板与时间轴回放测试。",
+    "image": "",
+    "source": "https://api.nasa.gov/",
+    "metrics": {
+      "missKm": 30500000,
+      "speedKps": 9.3,
+      "hazardous": false,
+      "diameterM": 260
+    }
+  }
+]

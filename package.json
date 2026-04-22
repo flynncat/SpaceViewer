@@ -1,0 +1,42 @@
+{
+  "name": "spaceviewer",
+  "version": "1.0.0",
+  "description": "SpaceViewer · 3D solar-system & near-Earth meteor/asteroid monitor (Three.js + Express, NASA NEO data).",
+  "main": "server/server.js",
+  "scripts": {
+    "dev": "node server/server.js",
+    "start": "node server/server.js",
+    "self-check": "node scripts/self-check.js",
+    "self-check:deep": "node scripts/self-check-deep.js"
+  },
+  "keywords": [
+    "meteor",
+    "meteorite",
+    "asteroid",
+    "near-earth-object",
+    "threejs",
+    "nasa",
+    "solar-system",
+    "3d",
+    "visualization"
+  ],
+  "author": "flynncat",
+  "license": "MIT",
+  "homepage": "https://github.com/flynncat/SpaceViewer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flynncat/SpaceViewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/flynncat/SpaceViewer/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "three": "^0.183.2"
+  }
+}

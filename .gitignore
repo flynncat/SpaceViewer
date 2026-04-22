@@ -1,0 +1,56 @@
+# ----- Dependencies -----
+node_modules/
+jspm_packages/
+.pnp
+.pnp.js
+
+# ----- Env & secrets -----
+.env
+.env.*
+!.env.example
+
+# ----- Logs -----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ----- Build / cache -----
+dist/
+build/
+.cache/
+.tmp/
+coverage/
+.nyc_output/
+.eslintcache
+
+# ----- Editors / IDE -----
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ----- OS -----
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ----- Project-private (not released) -----
+docs/
+UI Design/
+.superpowers/
+.cursor/
+
+# ----- Runtime / PM2 / Docker local state -----
+pids
+*.pid
+*.seed
+.pm2/
+
+# ----- Misc -----
+*.bak
+*.tmp

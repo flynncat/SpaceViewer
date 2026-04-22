@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MeteorScope 3D | 实时陨石流星监控</title>
+    <meta
+      name="description"
+      content="结合叙事表达与极简视觉风格的陨石流星监控网站：实时近地体、3D 太阳系预览、著名陨石图文资料。"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260418a" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/vendor/three/build/three.module.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand-lockup">
+        <p class="brand-caption">MeteorScope 3D</p>
+        <div class="brand">Solar Overview</div>
+      </div>
+      <nav class="nav">
+        <a href="#monitor">总览</a>
+        <a href="#compare">对比</a>
+        <a href="#library">图鉴</a>
+      </nav>
+      <button id="focus-earth-btn" class="ghost-btn">重置视角</button>
+    </header>
+
+    <main class="page-shell">
+      <section id="monitor" class="overview-section">
+        <div class="overview-head">
+          <div class="overview-title-block">
+            <p class="overview-eyebrow">MeteorScope 3D / Home Module</p>
+            <h1>太阳系监测总览</h1>
+            <p class="overview-subtitle">用首页核心看板建立太阳系尺度认知，并清晰呈现当前值得关注的目标。</p>
+          </div>
+        </div>
+        <div class="overview-meta">
+          <div id="module-updated" class="meta-pill">实时聚合已更新</div>
+          <div id="status-bar" class="meta-pill meta-pill-secondary">数据状态：Loading</div>
+          <div id="source-status" class="source-status"></div>
+        </div>
+
+        <div class="overview-layout">
+          <div class="overview-main-column">
+            <div class="scene-panel">
+              <div class="scene-panel-topbar">
+                <div class="scene-panel-label">3D 太阳系总览 / 可旋转 / 可聚焦 / 可重置</div>
+                <button
+                  id="scale-mode-btn"
+                  class="ghost-btn small scene-panel-control scene-panel-control-scale"
+                  type="button"
+                  data-mode="schematic"
+                  aria-label="切换示意/实际比例"
+                  title="在示意比例与实际比例之间切换"
+                >示意比例</button>
+              </div>
+              <div id="scene-label-layer" class="scene-label-layer" aria-hidden="true"></div>
+              <div id="scene-selection-cursor" class="scene-selection-cursor" hidden aria-hidden="true">
+                <span class="scene-selection-arrow scene-selection-arrow-top"></span>
+                <span class="scene-selection-arrow scene-selection-arrow-right"></span>
+                <span class="scene-selection-arrow scene-selection-arrow-bottom"></span>
+                <span class="scene-selection-arrow scene-selection-arrow-left"></span>
+              </div>
+              <div id="scene-object-label" class="scene-object-label" hidden>Earth</div>
+              <canvas id="solar-canvas" aria-label="三维太阳系与陨石预览"></canvas>
+              <div id="orbit-tooltip" class="orbit-tooltip" hidden>轨迹点时间</div>
+              <div class="scene-controls">
+                <div class="scene-control-pill scene-control-pill-time" aria-live="polite">
+                  <span class="inline-label">模拟时间</span>
+                  <span id="timeline-value" class="timeline-value">2026-04-19 00:00 UTC · T+0 天</span>
+                  <span id="timeline-speed" class="timeline-speed">暂停 · 30 天/秒</span>
+                </div>
+                <button
+                  id="timeline-backward-btn"
+                  class="ghost-btn small scene-control-pill scene-control-button scene-control-button-icon"
+                  type="button"
+                  aria-label="倒放"
+                  title="倒放"
+                >&#9664;&#9664;</button>
+                <button
+                  id="timeline-play-pause-btn"
+                  class="ghost-btn small scene-control-pill scene-control-button scene-control-button-icon"
+                  type="button"
+                  aria-label="播放"
+                  title="播放 / 暂停"
+                >&#9654;</button>
+                <button
+                  id="timeline-forward-btn"
+                  class="ghost-btn small scene-control-pill scene-control-button scene-control-button-icon"
+                  type="button"
+                  aria-label="前进"
+                  title="前进"
+                >&#9654;&#9654;</button>
+                <button
+                  id="timeline-slower-btn"
+                  class="ghost-btn small scene-control-pill scene-control-button scene-control-button-icon"
+                  type="button"
+                  aria-label="减速"
+                  title="减速"
+                >&minus;</button>
+                <button
+                  id="timeline-faster-btn"
+                  class="ghost-btn small scene-control-pill scene-control-button scene-control-button-icon"
+                  type="button"
+                  aria-label="加速"
+                  title="加速"
+                >+</button>
+                <button id="orbit-toggle-btn" class="ghost-btn small scene-control-pill scene-control-button">轨道显示</button>
+                <button id="compare-btn" class="ghost-btn small scene-control-pill scene-control-button">加入对比</button>
+                <button
+                  id="timeline-reset-btn"
+                  class="ghost-btn small scene-control-pill scene-control-button scene-control-button-icon scene-control-button-reset"
+                  type="button"
+                  aria-label="回到当前时间"
+                  title="回到当前时间"
+                >&#8634;</button>
+              </div>
+            </div>
+            <section class="side-panel selected-panel">
+              <div class="selected-main">
+                <div class="selected-summary-column">
+                  <div class="selected-header-row">
+                    <div class="selected-title-col">
+                      <p class="panel-label">Selected Target</p>
+                      <h2 id="selected-name" class="selected-name">--</h2>
+                    </div>
+                    <div class="selected-actions-row">
+                      <button id="locate-btn" class="ghost-btn small">定位目标</button>
+                      <button id="favorite-btn" class="ghost-btn small">加入收藏</button>
+                      <button id="subscribe-btn" class="ghost-btn small">订阅提醒</button>
+                    </div>
+                  </div>
+                  <p id="selected-copy" class="selected-copy">点击卡片或场景节点后，这里会更新为什么值得关注的解释。</p>
+                  <p id="selected-metrics" class="selected-metrics">最近距离 -- · 速度 -- · 风险 --</p>
+                </div>
+                <div class="selected-detail-column">
+                  <p class="selected-detail-label">Quick Facts</p>
+                  <div id="selected-preview" class="selected-kv"></div>
+                </div>
+              </div>
+            </section>
+            <div class="scene-info-strip">
+              <section class="info-chip legend-chip">
+                <p class="panel-label">Legend</p>
+                <p class="panel-copy">绿色：基准轨道<br />亮青：当前锁定目标<br />红色：重点监测或警示对象</p>
+              </section>
+              <section class="info-chip cta-chip">
+                <p class="panel-label">CTA</p>
+                <p class="panel-copy">查看全部监测目标，或进入当前对象专题页。</p>
+                <a class="primary-btn cta-link" href="#library">查看全部目标</a>
+              </section>
+              <section class="info-chip degraded-chip">
+                <p class="panel-label">Status</p>
+                <p id="degraded-hint-text" class="degraded-copy">降级提示位：当实时数据受限时，继续展示简化太阳系与缓存重点目标。</p>
+                <button id="retry-data-btn" class="ghost-btn small retry-btn" type="button" hidden>重试数据连接</button>
+              </section>
+            </div>
+          </div>
+
+          <aside class="side-column">
+            <section class="side-panel featured-panel">
+              <p class="panel-label">Featured Targets</p>
+              <div id="featured-targets" class="featured-targets"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section id="compare" class="compare-section">
+        <div class="section-head">
+          <p class="section-kicker">Compare</p>
+          <h2>三目标对比看板</h2>
+          <p>最多加入 3 个对象，从尺寸、速度、最近距离和风险级别快速比较。</p>
+        </div>
+        <div id="compare-board" class="compare-board"></div>
+      </section>
+
+      <section id="watchlist" class="watchlist-section">
+        <div class="section-head">
+          <p class="section-kicker">Save & Subscribe</p>
+          <h2>收藏与订阅</h2>
+          <p>收藏会保存在本地浏览器，订阅项记录阈值并在命中时高亮提醒。</p>
+        </div>
+        <div class="watch-grid">
+          <article class="panel-block panel-block--favorites">
+            <header class="panel-block-head">
+              <span class="panel-block-icon" aria-hidden="true">★</span>
+              <div class="panel-block-title">
+                <h3>我的收藏</h3>
+                <span class="panel-block-sub">存储在本地浏览器</span>
+              </div>
+              <span id="favorites-count" class="panel-block-count">0</span>
+            </header>
+            <ul id="favorites-list" class="list-plain"></ul>
+          </article>
+          <article class="panel-block panel-block--subscriptions">
+            <header class="panel-block-head">
+              <span class="panel-block-icon" aria-hidden="true">◉</span>
+              <div class="panel-block-title">
+                <h3>我的订阅</h3>
+                <span class="panel-block-sub">命中阈值时高亮提醒</span>
+              </div>
+              <span id="subscriptions-count" class="panel-block-count">0</span>
+            </header>
+            <ul id="subscriptions-list" class="list-plain"></ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="library" class="library-section">
+        <div class="section-head">
+          <p class="section-kicker">Archive</p>
+          <h2>著名陨石图鉴</h2>
+          <p>围绕当前监测对象继续延展阅读。支持关键词和类型过滤。</p>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-search">
+            <input id="search-input" type="search" placeholder="搜索名称 / 地点 / 类型 / 事件（例如：俄罗斯、车里雅宾斯克）" />
+            <button id="search-btn" class="primary-btn" type="button">搜索</button>
+          </div>
+          <select id="type-filter">
+            <option value="all">全部类型</option>
+            <option value="石陨石">石陨石</option>
+            <option value="铁陨石">铁陨石</option>
+            <option value="石铁陨石">石铁陨石</option>
+            <option value="近地小天体">近地小天体</option>
+          </select>
+        </div>
+        <p class="toolbar-hint">搜索结果以卡片显示，最多展示 6 条。支持多关键词与类型过滤。</p>
+        <div id="meteor-grid" class="meteor-grid"></div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        © 2026 MeteorScope 3D · Narrative inspired by
+        <a href="https://sanwan.ai/" target="_blank" rel="noreferrer">sanwan.ai</a> · Visual inspired by
+        <a href="https://thedankoe.com/" target="_blank" rel="noreferrer">Dan Koe</a>
+      </p>
+    </footer>
+
+    <div id="card-modal" class="modal" hidden>
+      <div class="modal-mask" data-close="1"></div>
+      <article class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <header class="modal-head">
+          <h3 id="modal-title">陨石介绍</h3>
+          <button id="modal-close-btn" class="ghost-btn small" type="button">关闭</button>
+        </header>
+        <p id="modal-desc" class="modal-desc"></p>
+        <div id="modal-links" class="modal-links"></div>
+      </article>
+    </div>
+
+    <script type="module" src="./app.js?v=20260418a"></script>
+  </body>
+</html>
