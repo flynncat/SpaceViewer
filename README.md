@@ -4,6 +4,9 @@
 
 ![license](https://img.shields.io/badge/license-MIT-brightgreen) ![node](https://img.shields.io/badge/node-%3E%3D20-43853d) ![threejs](https://img.shields.io/badge/Three.js-0.18x-000000) ![express](https://img.shields.io/badge/Express-5.x-lightgrey)
 
+![截图](docs/Snip20260423_3.png)
+
+
 ---
 
 ## 亮点
@@ -63,21 +66,25 @@ npm run self-check:deep    # 深度检查（含接口、数据结构）
 
 ## 环境变量
 
-| 变量名 | 默认值 | 说明 |
-| --- | --- | --- |
-| `PORT` | `5173` | 服务监听端口 |
+
+| 变量名            | 默认值        | 说明                                                                     |
+| -------------- | ---------- | ---------------------------------------------------------------------- |
+| `PORT`         | `5173`     | 服务监听端口                                                                 |
 | `NASA_API_KEY` | `DEMO_KEY` | NASA API Key，建议前往 [api.nasa.gov](https://api.nasa.gov/) 申请免费 key 以提高限速 |
+
 
 ## API 概览
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| GET | `/api/health` | 服务健康检查 |
-| GET | `/api/notable` | 著名陨石图文库 |
-| GET | `/api/neo/today?limit=28` | 当日近地小天体（NASA NeoWs + 兜底） |
-| GET | `/api/source/status` | 各数据源可用性诊断 |
-| GET | `/api/meteorites/catalog?limit=100&q=` | NASA 公开陨石目录 |
-| GET | `/api/combined/home` | 首页组合数据聚合接口 |
+
+| 方法  | 路径                                     | 说明                       |
+| --- | -------------------------------------- | ------------------------ |
+| GET | `/api/health`                          | 服务健康检查                   |
+| GET | `/api/notable`                         | 著名陨石图文库                  |
+| GET | `/api/neo/today?limit=28`              | 当日近地小天体（NASA NeoWs + 兜底） |
+| GET | `/api/source/status`                   | 各数据源可用性诊断                |
+| GET | `/api/meteorites/catalog?limit=100&q=` | NASA 公开陨石目录              |
+| GET | `/api/combined/home`                   | 首页组合数据聚合接口               |
+
 
 ---
 
@@ -190,3 +197,4 @@ server {
 - [CelestiaProject/Celestia](https://github.com/CelestiaProject/Celestia) · 真实比例可视化思路参考
 - 叙事风格参考：[sanwan.ai](https://sanwan.ai/)
 - 视觉结构参考：[Dan Koe](https://thedankoe.com/)
+

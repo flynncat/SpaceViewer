@@ -40,7 +40,15 @@ Thumbs.db
 ehthumbs.db
 
 # ----- Project-private (not released) -----
-docs/
+# 私有设计文档目录保持不开源，但 README 引用的截图/图片仍需推到仓库。
+docs/*
+!docs/
+!docs/*.png
+!docs/*.jpg
+!docs/*.jpeg
+!docs/*.gif
+!docs/*.svg
+!docs/*.webp
 UI Design/
 .superpowers/
 .cursor/
