@@ -377,43 +377,41 @@ import { OrbitControls } from "/vendor/three/examples/jsm/controls/OrbitControls
     return new THREE.CanvasTexture(glowCanvas);
   }
 
-  // 陨石 marker 的 9×9 像素风格纹理：
-  // - 中心 1 像素完全不透明（硬点）；
-  // - 围绕中心的 8 个像素半透明（3×3 核心的 bloom 外缘）；
-  // - 再外一圈（5×5 的 16 个像素）以更低透明度做微弱晕；
-  // - 其余直到 9×9 边界完全透明。
-  // 使用 NearestFilter，保证缩放到目标像素时仍是方格、无模糊。
-  function createMeteorPixelTexture() {
-    const size = 9;
+  // 陨石 marker 的圆形柔光纹理：
+  // 高分辨率 canvas + 径向渐变 + LinearFilter，
+  // 在目标屏幕像素（METEOR_VISUAL_PX）缩放下呈现平滑的圆形 bloom，而不是像素方块。
+  // 渐变层级：
+  //   ~0.00  : 硬核心（完全不透明）
+  //   ~0.18  : 中心高亮保持
+  //   ~0.45  : 半透明晕圈
+  //   ~1.00  : 完全透明（圆形边缘平滑过渡）
+  function createMeteorDotTexture() {
+    const size = 64;
     const canvas = document.createElement("canvas");
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
-    const img = ctx.createImageData(size, size);
-    const center = Math.floor(size / 2); // 4
-    for (let y = 0; y < size; y += 1) {
-      for (let x = 0; x < size; x += 1) {
-        const dx = Math.abs(x - center);
-        const dy = Math.abs(y - center);
-        const ring = Math.max(dx, dy);
-        let alpha = 0;
-        if (ring === 0) alpha = 255;
-        else if (ring === 1) alpha = 150;
-        else if (ring === 2) alpha = 55;
-        else alpha = 0;
-        const idx = (y * size + x) * 4;
-        img.data[idx] = 255;
-        img.data[idx + 1] = 255;
-        img.data[idx + 2] = 255;
-        img.data[idx + 3] = alpha;
-      }
-    }
-    ctx.putImageData(img, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size / 2;
+    const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    gradient.addColorStop(0.0, "rgba(255,255,255,1)");
+    gradient.addColorStop(0.18, "rgba(255,255,255,0.95)");
+    gradient.addColorStop(0.35, "rgba(255,255,255,0.55)");
+    gradient.addColorStop(0.6, "rgba(255,255,255,0.2)");
+    gradient.addColorStop(1.0, "rgba(255,255,255,0)");
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
     const tex = new THREE.CanvasTexture(canvas);
-    tex.magFilter = THREE.NearestFilter;
-    tex.minFilter = THREE.NearestFilter;
-    tex.generateMipmaps = false;
+    tex.magFilter = THREE.LinearFilter;
+    tex.minFilter = THREE.LinearMipMapLinearFilter;
+    tex.anisotropy = 4;
+    tex.generateMipmaps = true;
     return tex;
   }
 
@@ -2565,10 +2563,10 @@ import { OrbitControls } from "/vendor/three/examples/jsm/controls/OrbitControls
 
   // 真实比例下所有 NEO / 陨石共用的 marker 光晕纹理（Celestia 风格的"低于显示下限的点标记"）。
   const meteorMarkerTexture = createGlowTexture("rgba(255,255,255,0.94)", "rgba(255,255,255,0)");
-  // 陨石 marker 的 9×9 像素风格贴图：中心 1 px 不透明 + 8 px 半透明 bloom。
+  // 陨石 marker 的圆形柔光贴图（高分辨率 canvas + 径向渐变，LinearFilter 平滑缩放）。
   // 所有陨石/NEO 共用同一张纹理（通过 SpriteMaterial.color 做 tint）。
-  const meteorPixelTexture = createMeteorPixelTexture();
-  // 可见 marker 的屏幕像素边长（恒定 9 px，不随选中/悬停变化）。
+  const meteorDotTexture = createMeteorDotTexture();
+  // 可见 marker 的屏幕像素直径（恒定 9 px，不随选中/悬停变化）。
   const METEOR_VISUAL_PX = 9;
 
   function rebuildSceneObjects() {
@@ -2637,11 +2635,11 @@ import { OrbitControls } from "/vendor/three/examples/jsm/controls/OrbitControls
         mesh.renderOrder = 6;
         mesh.scale.setScalar(1);
 
-        // 视觉精灵：9×9 像素风 bloom 点。像素贴图 + NearestFilter，additive blending，
+        // 视觉精灵：恒定 9 屏幕像素的圆形柔光点。高分辨率渐变贴图 + LinearFilter，additive blending，
         // 不参与 depth，避免被自身轨道 tick 或其它透明对象周期性遮挡产生闪烁。
         visualSprite = new THREE.Sprite(
           new THREE.SpriteMaterial({
-            map: meteorPixelTexture,
+            map: meteorDotTexture,
             color: item.orbit.color,
             transparent: true,
             opacity: 0.92,
